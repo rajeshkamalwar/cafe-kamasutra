@@ -10,7 +10,7 @@ WordPress site + `online/` ordering app (restaurantkamasutra.nl).
    - `wp-config-local-sample.php` → `wp-config-local.php`
    - `online/admin/db-local-sample.php` → `online/admin/db-local.php`
    - `online/theme/db-local-sample.php` → `online/theme/db-local.php`
-3. Import DB: see `local-databases-setup.sql`.
+3. Import DB: see `local-databases-setup.sql`, then `database/restaurant.sql` and `database/sharma_kama.sql`.
 4. Copy `wp-content/uploads/` from backup or production (not in Git).
 
 ## GitHub
