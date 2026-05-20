@@ -17,11 +17,14 @@ WordPress site + `online/` ordering app (restaurantkamasutra.nl).
 
 https://github.com/rajeshkamalwar/cafe-kamasutra
 
-## Deploy (Hostinger VPS)
+## Deploy (Hostinger VPS + CloudPanel)
 
-1. On the server: `git clone` this repo into the web root.
-2. Create `wp-config.php`, `db-local.php` files with production credentials (not in Git).
-3. Import database and sync `wp-content/uploads/` (rsync/SFTP).
-4. Point the domain document root to this folder; enable SSL in hPanel.
+**Full guide:** [deploy/CLOUDPANEL.md](deploy/CLOUDPANEL.md)
+
+1. CloudPanel → **+ ADD SITE** → domain + PHP 8.2
+2. Create MySQL databases `restaurant` + `sharma_kama`
+3. SSH: `git clone` + `./deploy/cloudpanel-install.sh` (see `deploy/env.example`)
+4. SFTP `wp-content/uploads/` from your PC
+5. Enable SSL in CloudPanel
 
 **Do not commit** `wp-config.php`, `wp-config-local.php`, or `*-local.php` — they are in `.gitignore`.

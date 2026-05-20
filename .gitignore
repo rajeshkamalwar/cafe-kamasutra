@@ -42,3 +42,8 @@ online/fix_session_warnings.php
 # Env
 .env
 .env.*
+deploy/env
+
+# Production config on server (generated from deploy script)
+online/admin/config-local.php
+online/theme/config-local.php
