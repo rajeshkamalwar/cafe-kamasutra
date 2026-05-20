@@ -10,9 +10,24 @@ $db_user  = getenv( 'WP_DB_USER' ) ?: 'sharmakama';
 $db_pass  = getenv( 'WP_DB_PASS' ) ?: '';
 $db_host  = getenv( 'WP_DB_HOST' ) ?: '127.0.0.1';
 
-$salts = @file_get_contents( 'https://api.wordpress.org/secret-key/1.1/salt/' );
-if ( ! $salts ) {
+$salts_raw = @file_get_contents( 'https://api.wordpress.org/secret-key/1.1/salt/' );
+if ( ! $salts_raw ) {
 	fwrite( STDERR, "Could not fetch WordPress salts.\n" );
+	exit( 1 );
+}
+
+$salt_lines = array();
+foreach ( preg_split( '/\r\n|\r|\n/', trim( $salts_raw ) ) as $line ) {
+	$line = trim( $line );
+	if ( $line === '' || str_contains( $line, '<?php' ) ) {
+		continue;
+	}
+	if ( preg_match( "/^define\s*\(/", $line ) ) {
+		$salt_lines[] = $line;
+	}
+}
+if ( count( $salt_lines ) < 8 ) {
+	fwrite( STDERR, "Invalid salts from WordPress API.\n" );
 	exit( 1 );
 }
 
@@ -23,7 +38,7 @@ $cfg .= "define( 'DB_PASSWORD', " . var_export( $db_pass, true ) . " );\n";
 $cfg .= "define( 'DB_HOST', " . var_export( $db_host, true ) . " );\n";
 $cfg .= "define( 'DB_CHARSET', 'utf8mb4' );\n";
 $cfg .= "define( 'DB_COLLATE', '' );\n";
-$cfg .= trim( $salts ) . "\n";
+$cfg .= implode( "\n", $salt_lines ) . "\n";
 $cfg .= "\$table_prefix = 'wpcm_';\n";
 $cfg .= "define( 'WP_DEBUG', false );\n";
 $cfg .= "define( 'WP_DEBUG_LOG', true );\n";
@@ -41,4 +56,10 @@ $cfg .= "require_once ABSPATH . 'wp-settings.php';\n";
 $path = dirname( __DIR__ ) . '/wp-config.php';
 file_put_contents( $path, $cfg );
 chmod( $path, 0600 );
-echo "wp-config.php written\n";
+
+$lint = shell_exec( 'php -l ' . escapeshellarg( $path ) . ' 2>&1' );
+if ( ! is_string( $lint ) || ! str_contains( $lint, 'No syntax errors' ) ) {
+	fwrite( STDERR, $lint ?: "wp-config.php failed lint.\n" );
+	exit( 1 );
+}
+echo "wp-config.php written (syntax OK)\n";
