@@ -1,10 +1,8 @@
 #!/bin/bash
-# Replace localhost URLs in the DB after importing from XAMPP.
+# Replace all localhost/XAMPP URLs after importing from local dev.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-FROM_HTTP='http://localhost/cafekamasutra'
-FROM_HTTPS='https://localhost/cafekamasutra'
 TO='https://restaurantkamasutra.nl'
 
 WP_CLI=""
@@ -18,13 +16,24 @@ else
 	WP_CLI="php wp-cli.phar"
 fi
 
-echo "==> Search-replace: $FROM_HTTP -> $TO"
-$WP_CLI search-replace "$FROM_HTTP" "$TO" --all-tables --precise --skip-columns=guid --report-changed-only
+# Order matters: longest / most specific first
+REPLACEMENTS=(
+	"http://localhost/cafekamasutra"
+	"https://localhost/cafekamasutra"
+	"//localhost/cafekamasutra"
+	"http://localhost"
+	"https://localhost"
+)
 
-echo "==> Search-replace: $FROM_HTTPS -> $TO"
-$WP_CLI search-replace "$FROM_HTTPS" "$TO" --all-tables --precise --skip-columns=guid --report-changed-only
+for FROM in "${REPLACEMENTS[@]}"; do
+	echo "==> search-replace: $FROM -> $TO"
+	$WP_CLI search-replace "$FROM" "$TO" --all-tables --precise --skip-columns=guid --report-changed-only || true
+done
 
-echo "==> Flush cache"
+echo "==> Flush caches"
 $WP_CLI cache flush 2>/dev/null || true
+$WP_CLI transient delete --all 2>/dev/null || true
 
-echo "Done. Hard-refresh https://restaurantkamasutra.nl/"
+echo ""
+echo "Done. Hard-refresh https://restaurantkamasutra.nl/ (Ctrl+Shift+R)"
+echo "If RevSlider still broken: WP Admin -> Slider Revolution -> clear cache"
