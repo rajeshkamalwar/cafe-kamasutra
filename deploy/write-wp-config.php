@@ -4,11 +4,35 @@
  * Usage: source deploy/env && php deploy/write-wp-config.php
  */
 
+/**
+ * Load deploy/env (shell "source" does not pass vars to PHP getenv).
+ */
+$env_file = __DIR__ . '/env';
+if ( is_readable( $env_file ) ) {
+	foreach ( file( $env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ) as $line ) {
+		$line = trim( $line );
+		if ( $line === '' || str_starts_with( $line, '#' ) ) {
+			continue;
+		}
+		if ( preg_match( '/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/', $line, $m ) ) {
+			$val = trim( $m[2], " \t\"'" );
+			putenv( $m[1] . '=' . $val );
+			$_ENV[ $m[1] ]    = $val;
+			$_SERVER[ $m[1] ] = $val;
+		}
+	}
+}
+
 $domain   = getenv( 'DOMAIN' ) ?: 'restaurantkamasutra.nl';
 $db_name  = getenv( 'WP_DB_NAME' ) ?: 'restaurant';
 $db_user  = getenv( 'WP_DB_USER' ) ?: 'sharmakama';
 $db_pass  = getenv( 'WP_DB_PASS' ) ?: '';
 $db_host  = getenv( 'WP_DB_HOST' ) ?: '127.0.0.1';
+
+if ( $db_pass === '' ) {
+	fwrite( STDERR, "WP_DB_PASS is empty. Check deploy/env.\n" );
+	exit( 1 );
+}
 
 $salts_raw = @file_get_contents( 'https://api.wordpress.org/secret-key/1.1/salt/' );
 if ( ! $salts_raw ) {
