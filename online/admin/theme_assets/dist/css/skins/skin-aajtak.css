@@ -1,0 +1,161 @@
+/*
+ * Skin: Black
+ * -----------
+ */
+/* skin-aajtak navbar */
+.skin-aajtak .main-header {
+  -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.05);
+}
+.skin-aajtak .main-header .navbar-toggle {
+  color: #333;
+}
+.skin-aajtak .main-header .navbar-brand {
+  color: #333;
+  border-right: 1px solid #eee;
+}
+.skin-aajtak .main-header .navbar {
+  background-color: #d61921;
+}
+.skin-aajtak .main-header .navbar .nav > li > a {
+  color: #333333;
+}
+.skin-aajtak .main-header .navbar .nav > li > a:hover,
+.skin-aajtak .main-header .navbar .nav > li > a:active,
+.skin-aajtak .main-header .navbar .nav > li > a:focus,
+.skin-aajtak .main-header .navbar .nav .open > a,
+.skin-aajtak .main-header .navbar .nav .open > a:hover,
+.skin-aajtak .main-header .navbar .nav .open > a:focus,
+.skin-aajtak .main-header .navbar .nav > .active > a {
+  background: #ffffff;
+  color: #999999;
+}
+.skin-aajtak .main-header .navbar .sidebar-toggle {
+  color: #333333;
+}
+.skin-aajtak .main-header .navbar .sidebar-toggle:hover {
+  color: #999999;
+  background: #ffffff;
+}
+.skin-aajtak .main-header .navbar > .sidebar-toggle {
+  color: #333;
+  border-right: 1px solid #eee;
+}
+.skin-aajtak .main-header .navbar .navbar-nav > li > a {
+  border-right: 1px solid #eee;
+}
+.skin-aajtak .main-header .navbar .navbar-custom-menu .navbar-nav > li > a,
+.skin-aajtak .main-header .navbar .navbar-right > li > a {
+  border-left: 1px solid #eee;
+  border-right-width: 0;
+}
+.skin-aajtak .main-header .logo {
+  background-color: #c41a29;
+  color: #333333;
+  border-bottom: 0 solid transparent;
+  border-right: 1px solid #eee;
+}
+.skin-aajtak .main-header .logo:hover {
+  background-color: #fcfcfc;
+}
+@media (max-width: 767px) {
+  .skin-aajtak .main-header .logo {
+    background-color: #222222;
+    color: #ffffff;
+    border-bottom: 0 solid transparent;
+    border-right: none;
+  }
+  .skin-aajtak .main-header .logo:hover {
+    background-color: #1f1f1f;
+  }
+}
+.skin-aajtak .main-header li.user-header {
+  background-color: #222;
+}
+.skin-aajtak .content-header {
+  background: transparent;
+  box-shadow: none;
+}
+.skin-aajtak .wrapper,
+.skin-aajtak .main-sidebar,
+.skin-aajtak .left-side {
+  background-color: #222d32;
+}
+.skin-aajtak .user-panel > .info,
+.skin-aajtak .user-panel > .info > a {
+  color: #fff;
+}
+.skin-aajtak .sidebar-menu > li.header {
+  color: #4b646f;
+  background: #1a2226;
+}
+.skin-aajtak .sidebar-menu > li > a {
+  border-left: 3px solid transparent;
+}
+.skin-aajtak .sidebar-menu > li:hover > a,
+.skin-aajtak .sidebar-menu > li.active > a,
+.skin-aajtak .sidebar-menu > li.menu-open > a {
+  color: #ffffff;
+  background: #1e282c;
+}
+.skin-aajtak .sidebar-menu > li.active > a {
+  border-left-color: #ffffff;
+}
+.skin-aajtak .sidebar-menu > li > .treeview-menu {
+  margin: 0 1px;
+  background: #2c3b41;
+}
+.skin-aajtak .sidebar a {
+  color: #b8c7ce;
+}
+.skin-aajtak .sidebar a:hover {
+  text-decoration: none;
+}
+.skin-aajtak .sidebar-menu .treeview-menu > li > a {
+  color: #8aa4af;
+}
+.skin-aajtak .sidebar-menu .treeview-menu > li.active > a,
+.skin-aajtak .sidebar-menu .treeview-menu > li > a:hover {
+  color: #ffffff;
+}
+.skin-aajtak .sidebar-form {
+  border-radius: 3px;
+  border: 1px solid #374850;
+  margin: 10px 10px;
+}
+.skin-aajtak .sidebar-form input[type="text"],
+.skin-aajtak .sidebar-form .btn {
+  box-shadow: none;
+  background-color: #374850;
+  border: 1px solid transparent;
+  height: 35px;
+}
+.skin-aajtak .sidebar-form input[type="text"] {
+  color: #666;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 2px;
+}
+.skin-aajtak .sidebar-form input[type="text"]:focus,
+.skin-aajtak .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
+  background-color: #fff;
+  color: #666;
+}
+.skin-aajtak .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
+  border-left-color: #fff;
+}
+.skin-aajtak .sidebar-form .btn {
+  color: #999;
+  border-top-left-radius: 0;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 0;
+}
+.skin-aajtak .pace .pace-progress {
+  background: #222;
+}
+.skin-aajtak .pace .pace-activity {
+  border-top-color: #222;
+  border-left-color: #222;
+}

@@ -1,0 +1,13 @@
+<?php
+session_start();
+ob_start();
+unset($_SESSION['username']);
+unset($_SESSION['current_pick']);
+unset($_SESSION["shopping_cart"]);
+unset($_SESSION['curntpostcode_id']);
+unset($_SESSION['curntpostcode']);
+unset($_SESSION['postcode_min_amt']);
+unset($_SESSION['postcode_deli_chrg']);
+unset($_SESSION['postcode_free_from']);
+header("location:online-order.php");
+?>

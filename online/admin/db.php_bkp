@@ -1,0 +1,29 @@
+<?php
+/* Database connection settings */
+$host = 'localhost';
+$user = 'rest';
+$pass = 'test123';
+$db = 'sharma_kama';
+$mysqli = new mysqli($host, $user, $pass, $db);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+echo "Connected successfully\n";
+
+$query = "SELECT * FROM `adm_set`";
+$result_query = $mysqli->query($query);
+
+if (!$result_query) {
+    die("Query failed: " . $mysqli->error);
+}
+
+$data1 = array();
+while ($row = $result_query->fetch_assoc()) {
+    $data1[$row['adm_set_name']] = $row['adm_set_vlu'];		
+}
+
+// Just print the result
+print_r($data1);
+?>
+

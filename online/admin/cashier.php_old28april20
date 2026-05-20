@@ -1,0 +1,1274 @@
+
+<?php session_start(); ?>
+<html>
+    <head>
+        <title>Welcome <?= $name ?> </title>
+        <?php include 'header.php'; ?>
+		 <script src="jquery.min.js"></script>
+    <title> Online Order </title>
+    <link rel="stylesheet" href="custom.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+  #clear_cart{display: none !important;}
+</style>
+    </head>
+	<script>
+	 $(function() {
+   $("input[name='pick_or_del']").click(function() {
+     if ($("#chkYes").is(":checked")) {
+       $("#dvPinNo").show();
+     } else {
+       $("#dvPinNo").hide();
+     }
+   });
+ });
+		$(function() {
+   $("input[name='discounttype']").click(function() {
+     if ($("#yes").is(":checked")) {
+       $("#dvPinNo12").hide();
+     } else {
+       $("#dvPinNo12").show();
+     }
+   });
+ });
+		
+		
+	</script>
+<script>
+$(document).ready(function(){
+
+   $("#usr_zipcode").keyup(function(){
+
+      var postcode = $(this).val().trim();
+      if(postcode != ''){
+
+         $.ajax({
+            url: 'ajaxfile.php',
+            type: 'post',
+            data: {postcode: postcode},
+            success: function(response){
+      
+                $('#postcode_response').html(response);
+
+             }
+         });
+      }else{
+         $("#postcode_response").html("");
+      }
+
+    });
+
+ });
+</script>
+<?php
+require 'db.php';
+include 'config.php';
+ob_start();
+include 'conform_user.php';
+if(!isset($_SESSION['current_pick'])){
+	
+	$query12 = $mysqli->query("SELECT * FROM `deliveryinfo` where id=1 ");
+		$row12 = $query12->fetch_array();
+$query = $mysqli->query("SELECT * FROM `minorder` where id=1 ");
+		$row = $query->fetch_array();
+		 $_SESSION['min_amt']=$row['min_amt'];
+         $_SESSION['deli_chrg']=$row['deli_chrg'];
+         $_SESSION['free_from']=$row['free_from'];
+         $_SESSION['current_pick']=$row12['pickup'];
+
+} else {
+	$pickup = $_SESSION['current_pick'];
+	$query12 = $mysqli->query("SELECT * FROM `deliveryinfo` where id=1 ");
+		$row12 = $query12->fetch_array();
+	if($row12['pickup']==$pickup){
+		$_SESSION['current_pick'] = $_SESSION['current_pick'];
+	}else { 
+		if($row12['pickup']=='pickup'){
+		unset($_SESSION["shopping_cart"]);
+		unset($_SESSION['curntpostcode_id']);
+        unset($_SESSION['postcode_min_amt']);
+        unset($_SESSION['postcode_deli_chrg']);
+        unset($_SESSION['postcode_free_from']);
+				$_SESSION['current_pick'] = $row12['pickup'];
+		} elseif($row12['pickup']=='delivery') { 
+			unset($_SESSION['min_amt']);
+         unset($_SESSION['deli_chrg']);
+         unset($_SESSION['free_from']);
+         unset($_SESSION['current_pick']);
+		 unset($_SESSION["shopping_cart"]);
+				$_SESSION['current_pick'] = $row12['pickup'];
+		}
+	}
+}
+           /* $_SESSION['current_lang']='en';*/
+if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
+           $current_lang = $_SESSION['current_lang'];
+            define('UTF8_ENABLED', '');
+            ?>
+            <script>
+                b_url1 = '<?php echo 'http://atotzprint.nl/online/'; ?>';
+                currency = '<?php echo currency . ' '; ?>';
+                current_lang = '<?php echo $current_lang; ?>';
+            </script>
+           <input type="hidden" id="current_lang" value="<?php echo $current_lang; ?>">
+            <input type="hidden" id="current_postcodeis" value="<?php
+            if (isset($_SESSION['curntpostcode_id'])) {
+                echo $_SESSION['curntpostcode_id'];
+            } else {
+                echo "notset";
+            }
+            ?>">
+            <input type="hidden" id="current_productprice" value="" >
+            <input type="hidden" id="current_productname" value="" >
+            <input type="hidden" id="current_productid" value="" >
+           <?php
+            $PostcodePopupTitle = $PostcodePopupP1 = $btntext = $PostcodePageURLtxt=$option_l=$yourorder_l=$urpostcode_l=$minamt_L=$DeliveryCharge_L= '';
+            if ($current_lang == "en") {
+				$yourorder_l="Your order";
+                $PostcodePopupTitle = 'Enter Postcode';
+                $PostcodePopupP1 = 'Enter the four digits of your postcode :';
+                $btntext = "To Order!";
+                $PostcodePageURLtxt = "View our delivery area here";
+				$option_l="Option(s)";
+				$PostcodePageURL = "http://atotzprint.nl/en/information/";
+				$urpostcode_l="Your postal code :";
+				$minamt_L="Minimum amount : ";
+				$DeliveryCharge_L="Delivery Charge :";
+				$Deliverypreferto ="Prefer to :";
+				$pickup = "Pick up";
+				$deiveryup =  "delivery";
+				$Deliveryprefer="Delivery information :";
+				
+            } else {
+				$yourorder_l="Uw bestelling";
+                $PostcodePopupTitle = 'Voer Postcode';
+                $PostcodePopupP1 = 'Vul de vier cijfers van uw postcode in :';
+                $btntext = "Bestellen!";
+                $PostcodePageURLtxt = "Bekijk hier ons bezorggebied";
+				$option_l="Optie(s)";
+				$PostcodePageURL = "http://atotzprint.nl/nl/informatie/";
+				$urpostcode_l="Je post code :";
+				$minamt_L= "Minimal order : ";
+				$DeliveryCharge_L="Bezorgkosten :";
+				$Deliverypreferto ="Liever :";
+				$pickup = "afhalen";
+				$deiveryup =  "bezorgen";
+				$Deliveryprefer="Bezorginformatie :";
+            }
+
+       function generateURL($string, $wordLimit = 0) {
+                $separator = '-';
+                if ($wordLimit != 0) {
+                    $wordArr = explode(' ', $string);
+                    $string = implode(' ', array_slice($wordArr, 0, $wordLimit));
+                }
+                $quoteSeparator = preg_quote($separator, '#');
+                $trans = array(
+                    '&.+?;' => '',
+                    '[^\w\d _-]' => '',
+                    '\s+' => $separator,
+                    '(' . $quoteSeparator . ')+' => $separator
+                );
+                $string = strip_tags($string);
+                foreach ($trans as $key => $val) {
+                    $string = preg_replace('#' . $key . '#i' . (UTF8_ENABLED ? 'u' : ''), $val, $string);
+                }
+                $string = strtolower($string);
+                return trim(trim($string, $separator));
+            }
+
+            $totlacatid = array();
+            $finalstr = '';
+            $query1 = $mysqli->query("SELECT `cat_sort_order` FROM `menu_order`")->fetch_object()->cat_sort_order;
+            $query2 = $mysqli->query("SELECT * FROM `categories`");
+            if ($query2->num_rows == 0) {
+                
+            } else {
+                while ($row = $query2->fetch_assoc())
+                    array_push($totlacatid, $row['cat_id']);
+            }
+            if (strlen($query1) > 0) {
+                $query1 = explode(",", $query1);
+                $result_diff = array_diff($totlacatid, $query1);
+                if (!empty($result_diff)) {
+                    $finalstr1 = implode(",", $query1);
+                    $finalstr2 = implode(",", $result_diff);
+                    if (strlen($finalstr1) > 0 && strlen($finalstr2) > 0) {
+                        $finalstr = $finalstr1 . ',' . $finalstr2;
+                    }
+                } else {
+                    $finalstr = implode(",", $query1);
+                }
+            } else {
+                $finalstr = implode(",", $totlacatid);
+            }
+
+            $final_query = "SELECT `cat_id`,`cat_name_en`,`cat_name_nl` FROM `categories` WHERE `cat_id` IN (" . $finalstr . ") ORDER BY FIELD(`cat_id`," . $finalstr . ")";
+            $query_result = $mysqli->query($final_query);
+
+            $menu_list = '';
+            if ($query_result->num_rows == 0) {
+                $menu_list .= 'Loading...';
+            } else {
+                while ($row = $query_result->fetch_assoc()) {
+                    $countodish1 = $mysqli->query("SELECT count(`dish_id`) as countofdish FROM `dish` WHERE CONCAT(',', `categry_id`, ',') like '%," . $row['cat_id'] . ",%' ")->fetch_object()->countofdish;
+                    if ($countodish1 > 0) {
+                        $cat_name_countodish1 = "";
+                        if ($current_lang == "en") {
+                            $cat_name_countodish1 = $row['cat_name_en'];
+                        } else {
+                            $cat_name_countodish1 = $row['cat_name_nl'];
+                        }
+                        $list_dish .= '<li><a href="#' . generateURL($row['cat_name_en']) . '">' . $cat_name_countodish1 . '</a></li>';
+                    }
+                }
+            }
+
+
+            $catsortlist = explode(",", $finalstr);
+            $no_of_cat = count($catsortlist);
+            $product_list = '';
+            for ($counti = 0; $counti < $no_of_cat; $counti++) {
+                //get count of dish for category
+                $countodish = $mysqli->query("SELECT count(`dish_id`) as countofdish FROM `dish` WHERE CONCAT(',', `categry_id`, ',') like '%," . $catsortlist[$counti] . ",%' ORDER By `dish_id` ASC")->fetch_object()->countofdish;
+
+//   echo "<br/>number->".$counti."   cat_id->".$catsortlist[$counti]."   dish_in_cat->".$countodish;
+                $cat_disc = '';
+                $cat_name = '';
+                $cat_query = $mysqli->query("SELECT * FROM `categories` where cat_id='" . $catsortlist[$counti] . "'");
+                $roww = $cat_query->fetch_assoc();
+
+                if ($current_lang == "en") {
+                    $cat_name = $roww['cat_name_en'];
+                } else {
+                    $cat_name = $roww['cat_name_nl'];
+                }
+
+                if ($current_lang == "en") {
+                    $cat_disc = $roww['cat_desc_en'];
+                } else {
+                    $cat_disc = $roww['cat_desc_nl'];
+                }
+
+
+                if ($countodish > 0) {
+					$totlacatid3 = array();
+					$dishfinalstr = '';
+            $query13 = $mysqli->query("SELECT `do_dish_sort_order` FROM `dish_order` where CONCAT(',', `do_cat_id`, ',') like '%," . $catsortlist[$counti] . ",%'")->fetch_object()->do_dish_sort_order;
+					
+            $query23 = $mysqli->query("SELECT * FROM `dish` where  CONCAT(',', `categry_id`, ',') like '%," . $catsortlist[$counti] . ",%'");
+            if ($query23->num_rows == 0) {
+                
+            } else {
+                while ($row3 = $query23->fetch_assoc())
+                    array_push($totlacatid3, $row3['dish_id']);
+            }
+            if (strlen($query13) > 0) {
+                $query13 = explode(",", $query13);
+                $result_diff3 = array_diff($totlacatid3, $query13);
+                if (!empty($result_diff3)) {
+                    $finalstr13 = implode(",", $query13);
+                    $finalstr23 = implode(",", $result_diff3);
+                    if (strlen($finalstr13) > 0 && strlen($finalstr23) > 0) {
+                        $dishfinalstr = $finalstr13 . ',' . $finalstr23;
+                    }
+                } else {
+                    $dishfinalstr = implode(",", $query13);
+                }
+            } else {
+                $dishfinalstr = implode(",", $totlacatid3);
+            }
+
+					
+                    $query2 = "Select * from dish where CONCAT(',', `categry_id`, ',') like '%," . $catsortlist[$counti] . ",%'  AND dish_status = 'Active' ORDER BY FIELD(`dish_id`," . $dishfinalstr . ") ";
+                    //echo $query2;die();
+                    $dish_list_arr = $mysqli->query($query2);
+                    $product_list .= "<li class=\"product-category product\">
+            <h3 id=\"" . generateURL($roww['cat_name_en']) . "\">$cat_name</h3>
+            ";
+                    $num = 1;setlocale(LC_ALL, 'nl_NL');
+                    while ($row = $dish_list_arr->fetch_assoc()) {
+
+                        $product_name = '';
+                        $product_desc = '';
+						 $product_list .= '<div class="product_cart">
+						 <div class="product_detailss">
+                        <h4>' . $row['dish_name_en'] . '</h4>
+						<div class="prod-descreption">
+                        <p>' . $row['dish_desc_en'] . '</p>
+						</div></div>
+                     <div class="addtocart_price">
+                       <span class="price"><span class="amount"><span class="currencySymbol">' . currency . '</span>' . money_format("%!n",(float)$row['dish_price']) . '</span></span>
+                       <div class="add_to_cartbutn">
+                       <input type="hidden" name="quantity" id="quantity' . $row["dish_id"] . '" class="form-control" value="1" />
+             <input type="hidden" name="hidden_name" id="name' . $row["dish_id"] . '" value="' . $row["dish_name_en"] . '" />
+             <input type="hidden" name="hidden_price" id="price' . $row["dish_id"] . '" value="' . $row["dish_price"] . '" />
+             <input type="hidden" name="hidden_dish_type" id="dish_type' . $row["dish_id"] . '" value="' . $row["dish_type"] . '" />    
+             <input type="hidden" name="hidden_dish_attrib" id="dish_attrib' . $row["dish_id"] . '" value="' . $row["dish_attrib"] . '" />    
+<a class="add_to_cart" name="add_to_cart" id="' . $row["dish_id"] . '"  href="javascript:void(0)"> </a> </div>
+                    </div>
+                 </div>';	
+						  $num++;
+                    }setlocale(LC_ALL, NULL);
+ $product_list .= "</li>";
+                }
+            }
+	//Code 4 Delivery Information Section 
+            $DeliveryInformationSection = $DeliveryToday = "";
+            if ($current_lang == "en") {
+                $DeliveryInformationSection = "Delivery Information";
+                $DeliveryToday = "Delivery Today";
+				$pickuptoday = "Pickup Today";
+            } else {
+                $DeliveryInformationSection = "Bezorg Informatie";
+                $DeliveryToday = "Bezorging Vandaag";
+				$pickuptoday = "afhalen Vandaag";
+            }
+
+            //echo "Current Time : ".date('h:i:s');
+            function popup1($mysqli, $current_lang) {
+                $serve_till ="";
+                $serve_from = $close4theday = $weekoff = $serve_start_from = "";
+                
+                if ($current_lang == "dutch"){
+					
+                    $DeliveryInformationSection = "Bezorg Informatie";
+                    $DeliveryToday = "Bezorging Time";
+                    $serve_till = "wij bezorgen tot met ";
+                    $pick_till = "U kunt ophalen tot";
+                    $serve_from = "We zullen opnieuw leveren ";
+                    $close4theday = "Wij zijn op dit moment gelosten.";
+                    $weekoff = "We zijn vandaag gesloten.";
+                    $serve_start_from = "Wij zullen dienen van";
+					
+                }else{
+					
+                    $DeliveryInformationSection = "Delivery Information";
+                    $DeliveryToday = "Delivery Time";
+                    $serve_till = "We will deliver till";
+					$pick_till = "You can pickup till ";
+                    $serve_from = "We will deliver again ";
+                    $close4theday = "We are closed at this moment.";
+                    $weekoff = "We are close today.";
+                    $serve_start_from = "We will deliver from";
+					
+                }
+
+
+
+// for popup alert. which show msg about open /close/ opentime             
+                $DeIn_day = $time_now = '';
+                $DeIn_day = date('l');
+                $time_now = date("H:i");
+                $opentime1 = '';
+                $closingtime1 = '';
+                $shift1openORclose = '';
+                $opentime2 = '';
+                $closingtime2 = '';
+                $shift2openORclose = '';
+
+                $popupmsg1 = $showpostpopupornot = '';
+
+                // restraholidays module code
+                $restraholidays_query = "Select *  From restraholidays";
+                $restraholidays_result = $mysqli->query($restraholidays_query);
+                $rh_start_date = '';
+                $rh_end_date = '';
+                $rh_msg_en = '';
+                $rh_msg_nl = '';
+                while ($row = $restraholidays_result->fetch_assoc()) {
+                    $rh_start_date = $row['rh_start_date'];
+                    $rh_end_date = $row['rh_end_date'];
+                    $rh_msg_en = $row['rh_msg_en'];
+                    $rh_msg_nl = $row['rh_msg_nl'];
+                }
+
+
+                $todaysDate = date('Y-m-d');
+                $todaysDate = date('Y-m-d', strtotime($todaysDate));
+                $restraholidaysBegin = date('Y-m-d', strtotime($rh_start_date));
+                $restraholidaysEnd = date('Y-m-d', strtotime($rh_end_date));
+
+                if (($todaysDate >= $restraholidaysBegin) && ($todaysDate <= $restraholidaysEnd)) {//restraholidays are going on
+                    if ($current_lang == "en") {
+                        $popupmsg1 = $rh_msg_en;
+                    } else {
+                        $popupmsg1 = $rh_msg_nl;
+                    }
+                    $showpostpopupornot = "no";
+                } else {//restraholidays are not going on
+                    $isopen_query = '';
+                    $isopen_query = "Select * from worktime where wt_day='" . $DeIn_day . "'";
+                    
+                    //echo "<h1>isopen_query".$isopen_query."</h1>";
+                    $isopen_result = $mysqli->query($isopen_query);
+                    while ($row = $isopen_result->fetch_assoc()) {
+                        $opentime1 = $row['wt_opentime1'];
+                        $closingtime1 = $row['wt_closetime1'];
+                        $shift1openORclose = $row['wt_SHIFT1openORclose'];
+                        $opentime2 = $row['wt_opentime2'];
+                        $closingtime2 = $row['wt_closetime2'];
+                        $shift2openORclose = $row['wt_SHIFT2openORclose'];
+                        $DeIn_openORclose = $row['wt_openORclose'];
+                    }
+
+
+
+                    //  code work with Time Setting module START
+//                if ($DeIn_openORclose == "open") {
+					if($shift1openORclose=="close" && $shift2openORclose=="close"){ //if both shiofts are closed then show closed msg
+                        $popupmsg1 = $close4theday;
+                            $showpostpopupornot = "no";
+                    }else{ //else check conditions and do needfull
+						
+                    if (($time_now >= $opentime1 && $time_now <= $closingtime1 && $shift1openORclose == 'open') || ($time_now >= $opentime2 && $time_now <= $closingtime2 && $shift2openORclose == 'open')) {
+                        //echo 'Open';
+						if($_SESSION['current_pick']=="pickup"){
+							$serve_till12 = $pick_till; } else { 
+							$serve_till12 = $serve_till;
+						}
+                        if ($time_now >= $opentime1 && $time_now <= $closingtime1 && $shift1openORclose == 'open') {
+                            $popupmsg1 = $serve_till12 . " " . $closingtime1;
+                            $showpostpopupornot = "yes";
+                        } else if ($time_now >= $opentime2 && $time_now <= $closingtime2 && $shift2openORclose == 'open') {
+                            $popupmsg1 = $serve_till12 . " " . $closingtime2;
+                            $showpostpopupornot = "yes";
+                        }
+                    } else if (($time_now >= $opentime1 && $time_now <= $closingtime1 && $shift1openORclose == 'close') || ($time_now >= $opentime2 && $time_now <= $closingtime2 && $shift2openORclose == 'close')) {                        
+                        //echo 'close';
+                        if ($time_now >= $opentime1 && $time_now <= $closingtime1 && $shift1openORclose == 'close' && $shift2openORclose == 'open') {
+                            $popupmsg1 = $serve_from . " " . $opentime2;
+                            $showpostpopupornot = "yes";
+                        } else if ($time_now >= $opentime1 && $time_now <= $closingtime1 && $shift1openORclose == 'close' && $shift2openORclose == 'close') {
+                            $popupmsg1 = $close4theday;
+                            $showpostpopupornot = "no";
+                        } 
+                        else if ($time_now >= $opentime2 && $time_now <= $closingtime2 && $shift2openORclose == 'close') {
+                            $popupmsg1 = $close4theday;
+                            $showpostpopupornot = "no";
+                        }
+                    } else if ($time_now >= $closingtime1 && $time_now <= $opentime2 && $shift2openORclose == 'open') {
+                        $popupmsg1 = $serve_from . " " . $opentime2;
+                        $showpostpopupornot = "no";
+                    } else if ($time_now >= $closingtime1 && $time_now <= $opentime2 && $shift2openORclose == 'close') {
+                        $popupmsg1 = $close4theday;
+                        $showpostpopupornot = "no";
+                    } else if ($time_now >= $closingtime2 && $shift2openORclose == 'close') {
+                        $popupmsg1 = $close4theday;
+                        $showpostpopupornot = "no";
+                    } else if ($time_now < $opentime1 && $shift1openORclose == 'open') {
+                        $popupmsg1 = $serve_start_from . " " . $opentime1;
+                    } else if ($time_now < $opentime1 && $shift1openORclose == 'close' && $shift2openORclose == 'open') {
+                        $popupmsg1 = $serve_start_from . " " . $opentime2;
+                    }else if ( $time_now > $closingtime2 ) {
+                            $popupmsg1 = $close4theday;
+                            $showpostpopupornot = "no";
+                        }
+					}
+                }
+              echo '<p id="popup1msg">' . $popupmsg1 . '</p>';
+                echo '<input type="hidden" value="' . $showpostpopupornot . '" id="showpostpopupornot">';
+            }
+            ?>
+<!DOCTYPE html>
+    <body class="hold-transition <?= theme_skin ?> sidebar-mini">
+	  <!-- options popup -->
+            <div id="myModalNew1" class="modal fade" tabindex="-1">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+
+                        <div class="modal-body">
+                            <p class="popupheading"><?php echo $option_l;?><button type="button" class="close" data-dismiss="modal" id="modal3" aria-hidden="true">×</button></p>
+                            <p><?php //echo $PostcodePopupP1;                     ?><?php //popup1($mysqli, $current_lang);                                                ?></p>
+                            <form method="post" id="pc_form2" name="pc_form2">
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- //.options popup -->
+        <div class="wrapper">
+            <div class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-left" id="cbp-spmenu-s1">
+                <!-- left-fixed -navigation--><?php include 'left-nav.php'; ?><!-- /.left-fixed -navigation-->
+            </div>
+            <!-- header-starts --><?php include 'top-strip-menu.php'; ?><!-- /.header-starts -->
+
+
+            <!-- main content -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>
+                        Cashier
+                        <small></small>
+                    </h1>
+                    <ol class="breadcrumb">
+                        <li><a href="dashboard.php"><i class="fa fa-dashboard"></i> Home</a></li>
+                        <li class="">Menu</li><li class="active">Cashier</li>
+                    </ol>
+                </section>
+				  <section class="content">
+
+                    <p id="del_notimsg"></p>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="box box-primary">
+                                <div class="box-header">
+                                    <div class="row"> 
+                                        <div class="col-lg-12">
+                                            <h3 class="box-title"> </h3>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body table-responsive no-padding">
+                                    <div class="col-sm-12">
+                                       <ul class="nav nav-tabs">
+                                         <li class="active"><a href="#tab1" data-toggle="tab">Customer Information</a></li>
+                                         <li><a href="#tab2" data-toggle="tab">Categories</a></li>
+                                       </ul>
+										<form method="POST" action="admincheckout.php">
+<div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+			<div class="row"  style="margin-top: 16px;">
+		<div class="form-group col-sm-6">
+			<label for="pick_or_del"><h4>Delivery Type  </h4> </label>
+           <input type="radio" id="chkNo" name="pick_or_del"  checked value="pickup">Pick Up
+           <input type="radio" id="chkYes" name="pick_or_del" value="delivery" >Delivery		
+         </div>
+		</div>
+		<div class="row">
+		<div class="form-group col-sm-6">
+			<label for="discounttype"><h4>Discount Automatic</h4> </label>
+           <input type="radio" id="yes" name="discounttype" class="discounttype" value="yes">Yes
+           <input type="radio" id="no" name="discounttype" class="discounttype" value="no" >No		
+         </div>
+		</div>
+		<div class="row" id="dvPinNo12" style="display:none;">
+		<div class="form-group col-sm-6"  >
+          <label for="discount">Discount Charge </label>
+           <input type="text"  class="form-control" id="discount" name="discount"  >
+         </div>
+		</div>
+		
+		
+		
+		<div id="dvPinNo">
+			
+		<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_zipcode">Postcode </label>
+           <input type="text" class="form-control" id="usr_zipcode" name="usr_zipcode"   >
+			<div id="postcode_response" ></div>
+         </div>
+		</div>
+				<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_streetaddress1">Street </label>
+           <input type="text" class="form-control" id="usr_streetaddress1" name="usr_streetaddress1"   >
+         </div>
+		</div>
+		<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_order_city">Place </label>
+           <input type="text" class="form-control" id="usr_order_city" name="usr_order_city"   >
+         </div>
+		</div>
+		
+		<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="remarks">Remarks</label>
+           <input type="text" class="form-control" id="remarks" name="remarks"   >
+         </div>
+		</div>
+		</div>
+		
+	<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_first_name">First Name </label>
+           <input type="text" class="form-control" id="usr_first_name" name="usr_first_name"   >
+         </div>
+		</div>
+		<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_last_name">Last Name </label>
+           <input type="text" class="form-control" id="usr_last_name" name="usr_last_name"   >
+         </div>
+		</div>
+		<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_company">Company Name </label>
+           <input type="text" class="form-control" id="usr_company" name="usr_company"   >
+         </div>
+		</div>
+		<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_order_phone">Telephone  </label>
+           <input type="text" class="form-control" id="usr_order_phone" name="usr_order_phone"   >
+         </div>
+		</div>
+			<div class="row">
+		<div class="form-group col-sm-6">
+          <label for="usr_emailid">Email Address </label>
+           <input type="text" class="form-control" id="usr_emailid" name="usr_emailid"   >
+         </div>
+		</div>
+		<div class="row">
+		<div class="form-group col-sm-6" id="AddPassport">
+          <label for="cust_freeitem">Gift Item </label>
+           <input type="text"  class="form-control" id="cust_freeitem" name="cust_freeitem"  >
+         </div>
+		</div>
+		<div class="row">
+		 <div class="form-group col-sm-6">
+         <a class="btn btn-primary btnNext" >Next</a>
+		</div>
+	</div>
+    </div>
+   <div class="tab-pane" id="tab2">
+	  <div class="row" style="margin-top: 38px;">
+		<div class="form-group col-sm-3">
+			<div class="pm-widget" id="sticky1">
+                        <div class="product_main_category">
+                            <h6>Menu <span class="mob_close_btn">X</span></h6>
+                            <ul class="main_category">
+<?= $list_dish ?>
+                            </ul>
+                        </div>
+                    </div>
+         		  
+		</div>
+		  <div class="form-group col-sm-5">
+			  <div class="products">
+
+<?= $product_list ?>
+
+                    </div>
+		</div>
+		  	  <div class="form-group col-sm-4">
+<div class="col-md-3 pm-sidebar right" id="sidebar">
+					 <div class="pm-widget" id="sticky">
+						 <h6><?= $yourorder_l ?> <span class="mob_close_btn2">X</span></h6>
+						 
+                        <div class="widget_shopping_cart_content">
+                            <!-- start product list -->  
+                            <div class="container">
+                                <nav class="navbar navbar-default" role="navigation">
+                                    <div class="container-fluid">
+                                        <div id="navbar-cart" class="navbar-collapse collapse">
+                                            <ul class="nav navbar-nav">
+                                                <li>
+                                                    <a id="cart-popover" class="btn" data-placement="bottom" title=" <?php echo ($current_lang == "en") ? "Shopping Cart" : "Winkelwagen" ?>">
+                                                        <i class="fa fa-shopping-cart"></i>
+                                                        <span class="badge"></span>
+                                                        <span class="total_price"><?php echo currency; ?> 0.00</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                    </div>
+                                </nav>
+                                <!--<div id="popover_content_wrapper" style="display: none">-->
+                                <div id="popover_content_wrapper" >
+								
+				
+                                    <span id="cart_details"></span>
+									<div id="cantacloj"></div>
+									<label for="postcode name"><h4>Payment Option</h4> </label>
+           <input type="radio" id="cod" name="paymenttype"  value="COD">Cash
+           <input type="radio" id="pin" name="paymenttype" value="pin" >Pin	
+                                    <div align="right">
+									<?php if($_SESSION['current_pick']=="pickup"){
+										?>
+                                        
+                                           <input class="btn btn-primary" type="submit" name="checkout" value="checkout">
+                                        
+									<?php } else { ?>
+                                            <input class="btn btn-primary" type="submit" name="checkout" value="checkout">
+                                        
+									<?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end product list -->
+                           <div id="discount_msg">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+		  </div>
+	   </div>
+	    <a class="btn btn-primary btnPrevious" >Previous</a>
+        <a class="btn btn-primary btnNext" >Next</a>		
+    </div>
+	<div class="tab-pane" id="tab3">
+		<div class="row"  style="margin-top: 16px;">
+		<div class="form-group col-sm-6">
+			
+			 <?= $_SESSION["cop_cart_details"]; ?>
+			</div>
+		</div>
+	</div>
+   
+                                    </div>
+										</form>
+                                </div>
+                                <!-- /.box-body -->
+                            </div>
+                            <!-- /.box -->
+                        </div>
+                    </div><!-- /.row -->
+
+              
+
+                <!-- Inner content -->
+         
+                            </div>
+					    </section>
+                        </div><!-- /.modal-content -->
+
+<script>
+$("#no").click(function(){
+ if($(this).is(":checked")) {
+   //alert($(this).val()); 
+	 	var discount = $('#discount').val();
+   }
+});
+</script>
+            <!--// main content -->
+<script>
+		$('.btnNext').click(function(){
+  $('.nav-tabs > .active').next('li').find('a').trigger('click');
+});
+
+  $('.btnPrevious').click(function(){
+  $('.nav-tabs > .active').prev('li').find('a').trigger('click');
+});
+	</script>
+			<style>.oo_notshow{display:none;}</style>
+			<script>
+
+$(document).ready(function(){
+  $("#discount").keyup(function(){
+  var discount = $('#discount').val();
+  var action = "addtokart";
+  var current_lang = $('#current_lang').val();
+  $.ajax({
+           url: "casier_action.php",
+           method: "POST",
+           data: {discount: discount, action: action},
+                            success: function (data)
+                            {
+								var discountnew = "You receive ". concat(discount) . concat("% Discount. It is calculated on the checkout page.");
+								$("#discount_msg").html(discountnew);
+                                load_cart_data();
+                                if (current_lang == "en") {
+                                    $('#myModalNew1').modal('hide');
+                                } else {
+                                    $('#myModalNew1').modal('hide');
+                                }
+                            }
+                        });
+  });
+});
+</script>
+        <script>
+           
+            $(document).ready(function () {
+  //called when key is pressed in textbox
+  $("#chk_postcode").keypress(function (e) {
+     //if the letter is not digit then display error and don't type anything
+     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+        //display error message
+        if(current_lang=='dutch')
+        {$("#chk_postcode_errmsg").html("alleen cijfer").show().fadeOut("slow");}else{$("#chk_postcode_errmsg").html("Digits Only").show().fadeOut("slow");}
+               return false;
+    }
+   });
+});
+			
+			
+			var newWindowWidth = $(window).width();
+			 if (newWindowWidth > 992) {
+				 
+					$(document).on('click', '.dish_cat_icon', function () {
+						$('html, body').animate({
+							'scrollTop' : $(".product_main_category").position().top
+						});    
+					});
+					$(document).on('click', '.cart_icon', function () {
+						$('html, body').animate({
+							'scrollTop' : $("#sticky").position().top
+						});    
+					});
+			 }
+            $(document).ready(function () {
+                $("#check_out_cart").hide();
+				 $("#check_out_pick").hide();
+                $('#clear_cart').hide();
+                $('.pro_tbl_head').hide();
+                
+    $(document).on('click','.mob_close_btn',function(){
+        $('#sidebar1').removeClass("dish_cat_icon_y");
+    });
+    $(document).on('click','.mob_close_btn2',function(){
+        $('#sidebar').removeClass("cart_icon_y");
+    });
+                
+                $(document).on('click', '.reset_variations', function () {
+                        $( ".attriblok" ).each(function() {
+                        $(this).find('option:eq(0)').prop('selected', true);
+                        
+                        
+                    var product_price = $('#current_productprice').val();
+                    var totalcostnow=0;
+                                totalcostnow=product_price;
+                                $( ".attriblok" ).each(function() {
+                    var selected_attri_cost=$(this).find(':selected').data('lok');
+                    totalcostnow=finalcostforsingleitem(selected_attri_cost, totalcostnow);});
+                    $('#tcfs').html('');
+                    $('#tcfs').html(parseFloat(totalcostnow).toFixed(2));
+							//$('#tcfs').html(totalcostnow);
+               
+                        });
+                 });
+                $(document).on("change", ".attriblok", function (event) {
+                    var product_price = $('#current_productprice').val();
+                    var totalcostnow=0;
+                                totalcostnow=product_price;
+                                $( ".attriblok" ).each(function() {
+                    var selected_attri_cost=$(this).find(':selected').data('lok');
+                    totalcostnow=finalcostforsingleitem(selected_attri_cost, totalcostnow);});
+                    $('#tcfs').html('');
+                    $('#tcfs').html(totalcostnow);
+                });
+                $('#cart-popover').popover({
+                    html: true,
+                    container: 'body',
+                    content: function () {
+                        return $('#popover_content_wrapper').html();
+                    }
+                });
+
+
+// Gift And Discount Msg below cart
+                function giftanddismsg() {
+                    var count_of_item = $('.badge').html();
+                    if (count_of_item >= "1") {
+                        //console.log('check for msg');
+                        var action = "checkgiftitem";
+                        var cart_cost_now = document.getElementById('cart_cost_now').innerText;
+                        //console.log(cart_cost_now);
+                        cart_cost_now = cart_cost_now.substring(2, cart_cost_now.length);
+                       // console.log(cart_cost_now);
+                        $.ajax({
+                            url: "casier_action.php",
+                            method: "POST",
+                            data: {action: action, cart_cost_now: cart_cost_now},
+                            dataType: "html",
+                            success: function (data)
+                            {
+                                //console.log(data);                    
+                                $('#display_item').html(data);
+                            }
+                        });
+
+                    } else {
+                        //   console.log('no item in cart');
+                        $('#display_item').html('');
+                    }
+                }
+//Fetch Shopping Cart Details
+                load_cart_data();
+                function load_cart_data()
+                {
+                    var action = "loadcartdata";
+                    $.ajax({
+                        url: "casier_action.php",
+                        method: "POST",
+                        data: {action: action, },
+                        dataType: "json",
+                        success: function (data)
+                        {
+                            $('#cart_details').html('');
+                            $('.total_price').text('');
+                            $('.badge').text('');
+                            $('#cart_details').html(data.cart_details);
+							$('#cantacloj').html(data.totaltosho);
+                            $('.total_price').text(data.total_price);
+                            $('.badge').text(data.total_item);
+                            var total_price_4checkoutBtn = data.total_price_4checkoutBtn;
+                            if (typeof (postcode_min_amt) != "undefined" && postcode_min_amt !== null) {//console.log("HELLO");
+                                 if (parseFloat(parseFloat(total_price_4checkoutBtn.replace(',', '')).toFixed(2)) >= parseFloat(parseFloat(postcode_min_amt).toFixed(2))) {//console.log("HELLO123");
+                                    $("#check_out_cart").hide();
+                                    $("#check_out_cart").show();
+                                } else {
+                                    $("#check_out_cart").hide();
+                                }
+                            }else {//console.log("HELLO111");
+                                    $("#check_out_cart").hide();
+                                }
+                            var min_amt = '<?php echo $_SESSION['min_amt']; ?>';
+							if (typeof (min_amt) != "undefined" && min_amt !== null) {//console.log("HELLO");
+                                 if (parseFloat(parseFloat(total_price_4checkoutBtn.replace(',', '')).toFixed(2)) >= parseFloat(parseFloat(min_amt).toFixed(2))) {//console.log("HELLO123");
+                                    $("#check_out_pick").hide();
+                                    $("#check_out_pick").show();
+                                } else {
+                                    $("#check_out_pick").hide();
+                                }
+                            }else {//console.log("HELLO111");
+                                    $("#check_out_pick").hide();
+                                }
+                            if(total_price_4checkoutBtn>0){
+                                $("#discount_msg").html('');
+                                $("#discount_msg").html(data.discount);
+                            }else{$("#discount_msg").html('');}
+                             if(data.total_item>0){$('#clear_cart').show();$('.pro_tbl_head').show();}else{$('#clear_cart').hide();$('.pro_tbl_head').hide();}
+                        },
+                        complete: function (data) {
+                            giftanddismsg();
+							var col_l=$('.products li h3').css( "background-color");
+							$(".cart_icon").css("background-color", col_l).fadeIn(100);   
+     						setTimeout(function(){
+      							$(".cart_icon").css("background-color", "#333").fadeIn(100);
+    						},500); 
+                        }
+                    });
+                }
+
+                function finalcostforsingleitem(selected_attri_cost, product_price) {
+                  var tc = parseFloat(selected_attri_cost) + parseFloat(product_price);
+                    return tc;
+                  }
+                $(document).on('click', '.add_to_cart', function () {
+                    var product_id = $(this).attr("id");
+                    var discount = $('#discount').val();
+					var usr_zipcode = $('#usr_zipcode').val();
+					
+					var discounttype = $("input[name='discounttype']:checked").val();
+					var pick_or_del = $("input[name='pick_or_del']:checked").val();
+                    var product_type = $('#dish_type' + product_id).val();
+                    var product_attrib = $('#dish_attrib' + product_id).val();
+                    var product_name = $('#name' + product_id + '').val();
+                    var product_price = $('#price' + product_id + '').val();
+                    product_price = product_price.toString().replace(",", ".");
+                    var product_quantity = $('#quantity' + product_id).val();
+                    $("#current_productprice").val('');
+                    $("#current_productname").val('');
+                    $("#current_productid").val('');
+                    $("#current_productprice").val(product_price);
+                    $("#current_productname").val(product_name);
+                    $("#current_productid").val(product_id);
+                    if (product_type == "2") {
+                        url = b_url1 + 'admin/casier_action.php';  //console.log(url);return false;
+                        var action = "dish_attrib_popup";
+                        var current_lang = $('#current_lang').val();
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: {
+                                action: action, product_id: product_id, current_lang: current_lang,
+                            },
+                            dataType: "html",
+                            success: function (data1)
+                            {
+                                $("#pc_form2").html(data1);
+                                $('#myModalNew1').modal('show');
+                                var totalcostnow=0;
+                                totalcostnow=product_price;
+                                $( ".attriblok" ).each(function() {
+                                var selected_attri_cost=$(this).find(':selected').data('lok');
+                                totalcostnow=finalcostforsingleitem(selected_attri_cost, totalcostnow);
+                        });
+                                   $('#tcfs').html(totalcostnow);
+                            },
+                       });
+                    } else {
+                        final_addtocart(product_id, product_name, product_price, product_quantity, discount, discounttype, pick_or_del, usr_zipcode);
+                    }
+                });
+
+                $(document).on('click', '#attrib_add_to_cart', function () {
+                    var product_name = $("#current_productname").val();
+					
+                    var product_name_str=product_name;
+                    var counter = $(".attriblabel").length;
+					
+                    for(var i=0;i<counter;i++){
+						var passorfail=$(".attriblok:eq("+i+") option:selected").html();
+						 var selectedValue = $(".attriblok:eq("+i+")").val();
+						
+                        if(passorfail=="Choose an option..." ){$('#tcfs').html('Please select option...');return false;}
+                        if(passorfail=="Een optie kiezen…"){$('#tcfs').html('Een optie kiezen...');return false;}
+						if(selectedValue=="default"){$('#tcfs').html('Please select option...');return false;}
+                        product_name_str=product_name_str+"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+$(".attriblabel:eq("+i+")").html()+": ";
+                        product_name_str=product_name_str+$(".attriblok:eq("+i+") option:selected").html();
+                    }
+                     product_name= product_name_str;      
+                    var product_id = $("#current_productid").val();
+                    var singleitemcost_ic = $("#tcfs").html();
+                    var product_quantity = $("#quantity").val();
+                    var product_price12 = $('#current_productprice').val();
+						var product_price12 = singleitemcost_ic;
+					var product_price = $('#price' + product_id + '').val();
+				
+                    final_addtocart(product_id, product_name, product_price, product_quantity);
+                });
+//Remove Item from cart
+                $(document).on('click', '.delete', function () {
+                    var product_id = $(this).attr("id");
+                    var current_lang = $('#current_lang').val();
+                    var action = 'remove';
+                    var delmsg_lok='';
+                    if(current_lang=="en"){
+						delmsg_lok="Are you sure you want to remove this product?";}else{delmsg_lok="Weet u zeker dat u dit product wilt verwijderen?"}
+                    
+                    if (confirm(delmsg_lok))
+                    {
+                        $.ajax({
+                            url: "casier_action.php",
+                            method: "POST",
+                            data: {product_id: product_id, action: action},
+                            success: function ()
+                            {
+                                load_cart_data();
+                                $('#cart-popover').popover('hide');
+                                if (current_lang == "en") {
+                                    alert("Item has been removed from Cart");
+                                } else {
+                                    alert("Item is verwijderd uit winkelwagen");
+                                }
+
+                            }
+                        })
+                    } else
+                    {
+                        return false;
+                    }
+                });
+
+                $(document).on('click', '#clear_cart', function () {
+                    var action = 'empty';
+                    var current_lang = $('#current_lang').val();
+                    var currency =
+                            $.ajax({
+                                url: "casier_action.php",
+                                method: "POST",
+                                data: {action: action},
+                                success: function ()
+                                {
+                                    load_cart_data();
+                                    $('#cart-popover').popover('hide');
+                                    if (current_lang == "en") {
+                                        alert("Your Cart has been clear");
+                                    } else {
+                                        alert("Je winkelwagen is duidelijk");
+                                    }
+                                }
+                            });
+                });
+  function final_addtocart(product_id, product_name, product_price, product_quantity, discount, discounttype, pick_or_del, usr_zipcode) {
+                    var action = "addtokart";
+                    var current_lang = $('#current_lang').val();
+                    if (product_quantity > 0 )
+                    {
+						if(product_price != ""){
+                        $.ajax({
+                            url: "casier_action.php",
+                            method: "POST",
+                            data: {product_id: product_id, product_name: product_name, product_price: product_price, product_quantity: product_quantity,discount: discount,discounttype: discounttype,pick_or_del:pick_or_del,usr_zipcode:usr_zipcode, action: action},
+                            success: function (data)
+                            {
+                                load_cart_data();
+                                if (current_lang == "en") {
+                                    $('#myModalNew1').modal('hide');
+                                } else {
+                                    $('#myModalNew1').modal('hide');
+                                }
+                            }
+                        });
+                    } else {
+						 alert("Please Choose one option");
+					}
+}else
+                    {
+                        if (current_lang == "en") {
+                            alert("Please Enter Number of Quantity");
+                        } else {
+                            alert("Voer het aantal aantal in");
+                        }
+                    }
+                }
+
+
+
+
+
+
+
+
+                $('#ur_postcodesec').hide();
+                var showornot = $('#showpostpopupornot').val();
+                var current_postcodeis = $('#current_postcodeis').val();
+
+
+
+                if (current_postcodeis == 'notset') {
+                    $('#ur_postcodesec').hide();
+                    $('.pinbtn').show();
+                    $('.addbtn').hide();
+                } else {
+                    $('#ur_postcodesec').show();
+                    $('.pinbtn').hide();
+                    $('.addbtn').show();
+                }
+
+                $('.btn1').click(function (e) {
+                    e.preventDefault();
+                    var href = $(this).attr('href');
+                    $(href).modal('toggle');
+                });
+                $('#myModal').on('hidden.bs.modal', function () {
+                    var showornot = $('#showpostpopupornot').val();
+                    if (showornot == "yes") {
+                        $('#chk_postcode').val('');
+                        $('#post_err').html('');
+                        $('#myModalNew').modal('show');
+
+                    }
+                });
+                $('#myModalNew').on('shown.bs.modal', function () {
+                    $("#chk_postcode").focus();
+                });
+
+                $(document).on('click', '#close_postcode', function () {
+                    url = b_url1 + 'casier_action.php';  //console.log(url);return false;
+                    var action = 'removepostcode';
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: {
+                            action: action,
+                        },
+                        dataType: "html",
+                        success: function (data1)
+                        {
+                            $('#clear_cart').click();
+                            window.location.reload(true);
+                        }
+                    });
+
+                });
+
+
+                var chk_postcode = document.getElementById("chk_postcode");
+                chk_postcode.addEventListener("keydown", function (e) {
+					
+                    if (e.keyCode === 13) {  //checks whether the pressed key is "Enter"
+                        $("#pc_suit").click();
+                    }
+                });
+
+
+                $(document).on('click', '#pc_suit', function () {
+
+                    var current_lang = $('#current_lang').val();
+//                    console.log(current_lang);
+                    var chk_postcode = $("#chk_postcode").val();
+                    if (chk_postcode == "") {
+                        $('#post_err').html('');
+                        if (current_lang == "en") {
+                            $('#post_err').html("Please provide postcode!");
+                        } else {
+                            $('#post_err').html("Vul de zip code in!");
+                        }
+                        $("#chk_postcode").focus();
+                        return false;
+                    }
+
+
+
+
+                    url = b_url1 + 'casier_action.php';  //console.log(url);return false;
+                    var action = 'checkpostcode';
+                    var chk_postcode = chk_postcode;
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: {
+                            action: action,
+                            chk_postcode: chk_postcode,
+                        },
+                        dataType: "html",
+                        success: function (data1)
+                        {
+                            //console.log(current_lang);
+                            $('#post_err').html('');
+                            var data1 = $.trim(data1);
+
+                            //console.log(data1);
+                            if (data1 == "fail") {
+
+                                if (current_lang == "en") {
+                                    $('#post_err').html('');
+                                    $('#post_err').html("We do not deliver to this zip code area");
+                                } else {
+                                    $('#post_err').html('');
+                                    $('#post_err').html("Wij bezorgen niet in deze postcodegebied");
+                                }
+                                return false;
+                            }
+
+                            if (data1 == 'pass') {
+                                // console.log('PASS HO GYA');           
+                                window.location.reload(true);
+                            }
+
+                        }
+                    });
+                });
+
+
+                $(document).on('click', '#lang_en_btn', function () {
+                    url = b_url1 + 'casier_action.php';  //console.log(url);return false;
+                    var action = 'change_web_lang';
+                });
+
+
+            });
+			
+$(document).keypress(function(e) {
+  if ($("#myModal").hasClass('in') && (e.keycode == 13 || e.which == 13)) {
+    $("#popup1btn").click();
+  }
+});
+
+$(document).on('click', '.sel_pick', function () {
+                    url = b_url1 + 'setpick.php';  //console.log(url);return false;
+                    var sel_pick = $(this).attr("data-id");
+                    var action = 'update_pick';
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: {
+                            sel_pick: sel_pick,
+                            action: action,
+                        },
+                        dataType: "html",
+                        success: function (data)
+                        { window.location.reload(true);
+                        }
+                    });
+                });
+
+            </script>
+		
+            <?php include 'footer.php'; ?>
+         
+    </body>
+</html>
+

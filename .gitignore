@@ -1,0 +1,44 @@
+# Local / secrets (never commit)
+wp-config-local.php
+wp-config.php
+online/admin/db-local.php
+online/admin/config-local.php
+online/theme/db-local.php
+online/theme/config-local.php
+
+# WordPress runtime
+wp-content/debug.log
+wp-content/cache/
+wp-content/upgrade/
+wp-content/backups/
+wp-content/updraft/
+wp-content/ai1wm-backups/
+*.log
+
+# Media (sync separately to server — ~400MB+)
+wp-content/uploads/
+
+# Local DB data dir
+/mysql/
+
+# Temp / quarantine
+.quarantine/
+.tmb/
+.well-known/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Recovery / backup copies
+online/checkout_restored.php
+online/extract_original.php
+online/fix_session_warnings.php
+
+# Env
+.env
+.env.*

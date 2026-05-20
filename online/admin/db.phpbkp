@@ -1,0 +1,37 @@
+<?php
+
+
+/* Database connection settings */
+$host = 'localhost';
+$user = 'rest';
+$pass = 'test123';
+$db = 'sharma_kama';
+$mysqli = new mysqli($host,$user,$pass,$db) or die($mysqli->error);
+
+error_reporting(0);
+?>
+
+
+<?php
+ $query = "Select * From `adm_set`";
+        $result_query = $mysqli->query($query);
+//        $row = $result_query->fetch_assoc();
+        $data1=array();
+        while ($row = $result_query->fetch_assoc()) {
+          $data1[$row['adm_set_name']] = $row['adm_set_vlu'];		
+        }
+	 $rest_rest_title = $data1['rest_title'];
+     $rest_addrss_main = $data1['rest_addrss'];
+	 $rest_postcode_main = $data1['rest_postcode'];
+	 $res_rest_city = $data1['rest_city'];
+     $res_rest_cont = $data1['rest_cont'];
+	 
+	 $res_email_main = $data1['rest_email'];
+	 $rest_weblink_main = $data1['rest_weblink'];
+	 $res_rest_contact2 = $data1['rest_contact2'];
+	 $rest_info = $data1['rest_email'];
+
+ 	$rest_contact2 = $data1['rest_contact2'];
+	 $rest_info = $data1['rest_info'];
+
+?>
