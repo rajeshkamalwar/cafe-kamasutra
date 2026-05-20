@@ -18,7 +18,7 @@ SITE_ROOT="${SITE_ROOT:-$HOME/htdocs/$DOMAIN}"
 REPO_URL="${REPO_URL:-https://github.com/rajeshkamalwar/cafe-kamasutra.git}"
 BRANCH="${BRANCH:-main}"
 WP_DB_NAME="${WP_DB_NAME:-restaurant}"
-ORDER_DB_NAME="${ORDER_DB_NAME:-sharma_kama}"
+ORDER_DB_NAME="${ORDER_DB_NAME:-sharmakama}"
 
 echo "==> Site root: $SITE_ROOT"
 mkdir -p "$SITE_ROOT"
@@ -52,7 +52,7 @@ php -r "
 \$h = getenv('ORDER_DB_HOST') ?: '127.0.0.1';
 \$u = getenv('ORDER_DB_USER') ?: 'restaurant_user';
 \$p = getenv('ORDER_DB_PASS') ?: '';
-\$n = getenv('ORDER_DB_NAME') ?: 'sharma_kama';
+\$n = getenv('ORDER_DB_NAME') ?: 'sharmakama';
 \$c = \"<?php\n\\\$host='\$h';\n\\\$user='\$u';\n\\\$pass='\$p';\n\\\$db='\$n';\n\";
 file_put_contents('online/admin/db-local.php', \$c);
 file_put_contents('online/theme/db-local.php', \$c);

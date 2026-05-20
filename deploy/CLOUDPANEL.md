@@ -18,7 +18,7 @@ CloudPanel → **Databases** → create:
 | Database name | Notes |
 |---------------|--------|
 | `restaurant` | WordPress |
-| `sharma_kama` | Online ordering (`/online/`) |
+| `sharmakama` | Online ordering (`/online/`) — no underscores (CloudPanel) |
 
 Create one MySQL user with access to **both** databases. Save host, user, and password.
 
@@ -61,7 +61,7 @@ WP_DB_NAME=restaurant
 WP_DB_USER=your_mysql_user
 WP_DB_PASS=your_mysql_password
 WP_DB_HOST=127.0.0.1
-ORDER_DB_NAME=sharma_kama
+ORDER_DB_NAME=sharmakama
 ORDER_DB_USER=your_mysql_user
 ORDER_DB_PASS=your_mysql_password
 ORDER_DB_HOST=127.0.0.1

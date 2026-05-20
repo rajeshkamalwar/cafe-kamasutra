@@ -22,7 +22,7 @@ https://github.com/rajeshkamalwar/cafe-kamasutra
 **Full guide:** [deploy/CLOUDPANEL.md](deploy/CLOUDPANEL.md)
 
 1. CloudPanel → **+ ADD SITE** → domain + PHP 8.2
-2. Create MySQL databases `restaurant` + `sharma_kama`
+2. Create MySQL databases `restaurant` + `sharmakama` (no `_` in names on CloudPanel)
 3. SSH: `git clone` + `./deploy/cloudpanel-install.sh` (see `deploy/env.example`)
 4. SFTP `wp-content/uploads/` from your PC
 5. Enable SSL in CloudPanel

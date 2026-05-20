@@ -5,14 +5,14 @@ MariaDB exports for local / VPS restore.
 | File | Database | Purpose |
 |------|----------|---------|
 | `restaurant.sql` | `restaurant` | WordPress (`wpcm_*` tables) |
-| `sharma_kama.sql` | `sharma_kama` | Online ordering app (`online/`) |
+| `sharma_kama.sql` | `sharmakama` | Online ordering app (`online/`) — import into DB `sharmakama` |
 
 ## Restore (Hostinger VPS / XAMPP)
 
 ```bash
 mysql -u root -p < local-databases-setup.sql   # creates empty DBs (from project root)
 mysql -u root -p restaurant < database/restaurant.sql
-mysql -u root -p sharma_kama < database/sharma_kama.sql
+mysql -u root -p sharmakama < database/sharma_kama.sql
 ```
 
 On production, create databases and users in hPanel first, then import with the production credentials.
