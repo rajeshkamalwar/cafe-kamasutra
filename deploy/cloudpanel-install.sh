@@ -33,28 +33,8 @@ else
 fi
 
 echo "==> Creating wp-config.php..."
-if [[ ! -f wp-config.php ]]; then
-	cp "$SCRIPT_DIR/wp-config.production.php" wp-config.php
-	sed -i \
-		-e "s|{{WP_DB_NAME}}|${WP_DB_NAME}|g" \
-		-e "s|{{WP_DB_USER}}|${WP_DB_USER}|g" \
-		-e "s|{{WP_DB_PASS}}|${WP_DB_PASS}|g" \
-		-e "s|{{WP_DB_HOST}}|${WP_DB_HOST:-127.0.0.1}|g" \
-		-e "s|{{DOMAIN}}|${DOMAIN}|g" \
-		wp-config.php
-	if command -v curl >/dev/null 2>&1; then
-		curl -fsSL https://api.wordpress.org/secret-key/1.1/salt/ -o /tmp/wp-salts.txt
-		while IFS= read -r line; do
-			key=$(printf '%s' "$line" | sed -n "s/define('\([^']*\)'.*/\1/p")
-			val=$(printf '%s' "$line" | sed -n "s/.*, '\([^']*\)'.*/\1/p")
-			if [[ -n "$key" && -n "$val" ]]; then
-				val_escaped=$(printf '%s' "$val" | sed 's/[&/\|]/\\&/g')
-				sed -i "s|{{${key}}}|${val_escaped}|g" wp-config.php
-			fi
-		done < /tmp/wp-salts.txt
-		rm -f /tmp/wp-salts.txt
-	fi
-	sed -i 's|{{[A-Z_]*}}|change-me-regenerate-salts|g' wp-config.php
+if [[ ! -f wp-config.php ]] || grep -q '{{WP_DB_NAME}}' wp-config.php 2>/dev/null; then
+	bash "$SCRIPT_DIR/make-wp-config.sh"
 fi
 
 echo "==> Online app config..."
