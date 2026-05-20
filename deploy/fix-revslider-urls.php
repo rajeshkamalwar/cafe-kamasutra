@@ -33,12 +33,13 @@ if ( $mysqli->connect_error ) {
 $mysqli->set_charset( 'utf8mb4' );
 
 $from = array(
-	'http://localhost/cafekamasutra',
-	'https://localhost/cafekamasutra',
-	'//localhost/cafekamasutra',
 	'http:\\/\\/localhost\\/cafekamasutra',
 	'https:\\/\\/localhost\\/cafekamasutra',
 	'\\/\\/localhost\\/cafekamasutra',
+	'http://localhost/cafekamasutra',
+	'https://localhost/cafekamasutra',
+	'//localhost/cafekamasutra',
+	'localhost/cafekamasutra',
 );
 $to = 'https://restaurantkamasutra.nl';
 
