@@ -106,15 +106,23 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
     <div class="top_strip">
         <div class="left_div"><a href="<?php echo $infobtn_url;?>"><?php echo $infobtn;?></a>&nbsp;
 			<?php 
-			$discount_query = "Select *  From discount";
-                $discount_result = $mysqli->query($discount_query);
-                $disrow2 = $discount_result->fetch_assoc();
-			
-			
-			$discount_query = "Select *  From discount_description";
-                $discount_result = $mysqli->query($discount_query);
-                $disrow = $discount_result->fetch_assoc();
-		if($disrow2['active'] == 1 ){
+			$disrow2 = array( 'active' => 0, 'title1' => 'Discount', 'title_nl' => 'Korting' );
+			$disrow  = array();
+			$discount_result = $mysqli->query( 'SELECT * FROM discount LIMIT 1' );
+			if ( $discount_result ) {
+				$row = $discount_result->fetch_assoc();
+				if ( is_array( $row ) ) {
+					$disrow2 = $row;
+				}
+			}
+			$discount_result = $mysqli->query( 'SELECT * FROM discount_description LIMIT 1' );
+			if ( $discount_result ) {
+				$row = $discount_result->fetch_assoc();
+				if ( is_array( $row ) ) {
+					$disrow = $row;
+				}
+			}
+		if ( ! empty( $disrow2['active'] ) && (int) $disrow2['active'] === 1 ) {
 		?>
 			<a href="#"  id="show-msgpop"><?php  if ($current_lang == "dutch") { echo $disrow2['title_nl'];} else { echo $disrow2['title1']; }?>	</a>
 			<?php } ?>
@@ -241,7 +249,7 @@ if (strpos($actual_link, $key) == true) {
   <div class="popup-header">
     <div id="popup-close-button"><a href="#"></a></div>
     <ul>
-      <li><a href="#" id="sign-in"><?php echo $signin;?> <?php// echo $_SESSION['username'];?></a></li>
+      <li><a href="#" id="sign-in"><?php echo $signin; ?></a></li>
       <li><a href="#" id="register"><?php echo $register;?></a></li>
     </ul>
   </div><!--.popup-header-->

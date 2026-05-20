@@ -107,6 +107,7 @@ Re-import DB only if you intentionally replace production data.
 | Problem | Fix |
 |---------|-----|
 | Mixed content / wrong URLs | Re-run `wp search-replace` or check `deploy/env` `DOMAIN` |
-| Online app DB error | Check `online/admin/db-local.php` credentials |
+| Online app DB error / 500 on `/online/` | Run `bash deploy/setup-ordering-db.sh`; fix `public_header.php` `<?php//` typo; `php deploy/diagnose-online-order.php` |
+| Online app DB error | Check `online/admin/db-local.php` credentials and that `sharmakama` DB is imported |
 | White screen | CloudPanel → PHP logs; ensure `wp-config.php` exists |
 | 404 on `/online/` | Confirm files are in site root (not a subfolder) |
