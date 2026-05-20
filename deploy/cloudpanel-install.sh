@@ -34,18 +34,27 @@ fi
 
 echo "==> Creating wp-config.php..."
 if [[ ! -f wp-config.php ]]; then
-	SALTS=$(curl -fsSL https://api.wordpress.org/secret-key/1.1/salt/ 2>/dev/null | grep "define" | sed "s/define('\([^']*\)'.*/{{\\1}}/") || true)
-	WP_CFG="$SCRIPT_DIR/wp-config.production.php"
-	cp "$WP_CFG" wp-config.php
-	sed -i "s|{{WP_DB_NAME}}|${WP_DB_NAME}|g; s|{{WP_DB_USER}}|${WP_DB_USER}|g; s|{{WP_DB_PASS}}|${WP_DB_PASS}|g; s|{{WP_DB_HOST}}|${WP_DB_HOST:-127.0.0.1}|g; s|{{DOMAIN}}|${DOMAIN}|g" wp-config.php
+	cp "$SCRIPT_DIR/wp-config.production.php" wp-config.php
+	sed -i \
+		-e "s|{{WP_DB_NAME}}|${WP_DB_NAME}|g" \
+		-e "s|{{WP_DB_USER}}|${WP_DB_USER}|g" \
+		-e "s|{{WP_DB_PASS}}|${WP_DB_PASS}|g" \
+		-e "s|{{WP_DB_HOST}}|${WP_DB_HOST:-127.0.0.1}|g" \
+		-e "s|{{DOMAIN}}|${DOMAIN}|g" \
+		wp-config.php
 	if command -v curl >/dev/null 2>&1; then
+		curl -fsSL https://api.wordpress.org/secret-key/1.1/salt/ -o /tmp/wp-salts.txt
 		while IFS= read -r line; do
-			key=$(echo "$line" | sed -n "s/define('\([^']*\)'.*/\1/p")
-			val=$(echo "$line" | sed -n "s/.*, '\([^']*\)'.*/\1/p")
-			[[ -n "$key" && -n "$val" ]] && sed -i "s|{{${key}}}|${val}|g" wp-config.php
-		done < <(curl -fsSL https://api.wordpress.org/secret-key/1.1/salt/)
+			key=$(printf '%s' "$line" | sed -n "s/define('\([^']*\)'.*/\1/p")
+			val=$(printf '%s' "$line" | sed -n "s/.*, '\([^']*\)'.*/\1/p")
+			if [[ -n "$key" && -n "$val" ]]; then
+				val_escaped=$(printf '%s' "$val" | sed 's/[&/\|]/\\&/g')
+				sed -i "s|{{${key}}}|${val_escaped}|g" wp-config.php
+			fi
+		done < /tmp/wp-salts.txt
+		rm -f /tmp/wp-salts.txt
 	fi
-	sed -i 's|{{[A-Z_]*}}|change-me-run-install-again|g' wp-config.php
+	sed -i 's|{{[A-Z_]*}}|change-me-regenerate-salts|g' wp-config.php
 fi
 
 echo "==> Online app config..."
