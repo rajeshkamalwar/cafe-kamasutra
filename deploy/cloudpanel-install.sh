@@ -10,6 +10,7 @@ if [[ -f "$SCRIPT_DIR/env" ]]; then
 	source "$SCRIPT_DIR/env"
 	export DOMAIN WP_DB_NAME WP_DB_USER WP_DB_PASS WP_DB_HOST
 	export ORDER_DB_NAME ORDER_DB_USER ORDER_DB_PASS ORDER_DB_HOST
+	export WP_ADMIN_USER WP_ADMIN_EMAIL WP_ADMIN_PASS WP_ADMIN_DISPLAY_NAME
 	export REPO_URL BRANCH SITE_ROOT
 fi
 
@@ -79,7 +80,12 @@ fi
 echo "==> Permissions..."
 find . -type d -exec chmod 755 {} \;
 find . -type f -exec chmod 644 {} \;
-chmod 600 wp-config.php online/admin/db-local.php online/theme/db-local.php 2>/dev/null || true
+chmod 600 wp-config.php online/admin/db-local.php online/theme/db-local.php deploy/env 2>/dev/null || true
+
+if [[ -n "${WP_ADMIN_PASS:-}" && "${WP_ADMIN_PASS}" != "CHANGE_ME" ]]; then
+	echo "==> WordPress admin login..."
+	bash "$SCRIPT_DIR/seed-wp-admin.sh" || echo "WARN: seed-wp-admin.sh failed — set WP_ADMIN_PASS in deploy/env and run manually"
+fi
 
 echo ""
 echo "Done. Next steps:"

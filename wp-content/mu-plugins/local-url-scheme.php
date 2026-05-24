@@ -35,9 +35,6 @@ function cafek_local_rewrite_localhost_urls( $html ) {
 }
 
 $url_filters = array(
-	'home_url',
-	'site_url',
-	'plugins_url',
 	'content_url',
 	'stylesheet_directory_uri',
 	'template_directory_uri',

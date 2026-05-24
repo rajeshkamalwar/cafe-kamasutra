@@ -102,10 +102,37 @@ Re-import DB only if you intentionally replace production data.
 
 ---
 
+## WordPress admin login (set known password)
+
+After import, old passwords are bcrypt hashes — you may not know them.
+
+1. Edit `deploy/env` on the server (copy from `deploy/env.example`):
+
+```bash
+WP_ADMIN_USER=admin
+WP_ADMIN_EMAIL=info@restaurantkamasutra.nl
+WP_ADMIN_PASS=admin123
+```
+
+2. Run:
+
+```bash
+cd ~/htdocs/restaurantkamasutra.nl
+chmod +x deploy/seed-wp-admin.sh
+bash deploy/seed-wp-admin.sh
+```
+
+3. Log in at **https://restaurantkamasutra.nl/wp-login.php** — username **admin**, password **admin123**.
+
+Creates the user if missing; otherwise resets password and ensures **Administrator** role.
+
+---
+
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
+| Cannot log in to wp-admin | Run `bash deploy/seed-wp-admin.sh` after setting `WP_ADMIN_PASS` in `deploy/env` |
 | Mixed content / wrong URLs | Re-run `wp search-replace` or check `deploy/env` `DOMAIN` |
 | Online app DB error / 500 on `/online/` | Run `bash deploy/setup-ordering-db.sh`; fix `public_header.php` `<?php//` typo; `php deploy/diagnose-online-order.php` |
 | Online app DB error | Check `online/admin/db-local.php` credentials and that `sharmakama` DB is imported |

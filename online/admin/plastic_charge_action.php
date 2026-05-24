@@ -32,6 +32,8 @@ if (isset($_POST['action'])) {
         $output='';
         while ($row = $result_query->fetch_assoc()) 
         {
+			$select = "";
+			$select12 = "";
 			if($row['status']=='Active'){
 				$select = "selected";
 			}
@@ -63,4 +65,3 @@ echo $output;
     }
 }
 ?>
-

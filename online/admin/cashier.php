@@ -1,4 +1,12 @@
-<?php session_start();?>
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+	session_start();
+}
+require 'db.php';
+include 'config.php';
+ob_start();
+include 'conform_user.php';
+?>
 <html>
     <head>
         <title>Welcome <?= $name ?> </title>
@@ -58,10 +66,6 @@ $(document).ready(function(){
  });
 </script>
 <?php
-require 'db.php';
-include 'config.php';
-ob_start();
-include 'conform_user.php';
 	
 /*	
 if(!isset($_SESSION['current_pick'])){
@@ -103,9 +107,10 @@ $query = $mysqli->query("SELECT * FROM `minorder` where id=1 ");
 if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
            $current_lang = $_SESSION['current_lang'];
             define('UTF8_ENABLED', '');
+            $currency = currency . ' ';
             ?>
             <script>
-                b_url1 = 'https://restaurantkamasutra.nl/online/admin';
+                b_url1 = '<?= base_url; ?>';
                 currency = '<?php echo currency . ' '; ?>';
                 current_lang = '<?php echo $current_lang; ?>';
             </script>
@@ -551,7 +556,7 @@ if($query_postdel11->num_rows > 0 && $dicountamtt!=0)	{
                     echo '<h3 id="'.$cat_name2.'" class="sub_ca_name">'.$cat_name.' <p>'.$product_desc.'</p></h3>';                 
                  $dish_order = $mysqli->query("SELECT * FROM dish_order where do_cat_id  = '" . $value . "'");  
                  $roww_3 = $dish_order->fetch_assoc();
-                 $disharangs = $roww_3['do_dish_sort_order'];
+                 $disharangs = $roww_3 ? $roww_3['do_dish_sort_order'] : '';
                 $array=array_map('intval', explode(',', $disharangs));
 				 $array2=array_map('intval', explode(',', $disharangs));
                 $array = implode("','",$array);							
@@ -598,7 +603,7 @@ $print_dish = "SELECT  *  FROM `dish`  WHERE `categry_id` ='" . $value . "' AND 
 </a>';							}
  $query_postdel11 = $mysqli->query("SELECT * FROM `dish_discount` where `dish_id` = ".$roww_4['dish_id']."  ");	 
    		$discount = $query_postdel11->fetch_assoc();
-		 $dicountamtt2 = $discount['discount'];
+		 $dicountamtt2 = $discount ? $discount['discount'] : 0;
 	     $dicountamtt=($roww_4["dish_price"] * ($dicountamtt2 / 100));
          $dis2 = $roww_4["dish_price"]-number_format($dicountamtt,2);	  
 	 $dicountamtt2=$roww_4["dish_price"]-$dicountamtt;		 
@@ -803,7 +808,7 @@ if (in_array($today, $dd)){ ?>
 		<div class="row"  style="margin-top: 16px;">
 		<div class="form-group col-sm-6">
 			
-			 <?= $_SESSION["cop_cart_details"]; ?>
+			 <?= $_SESSION["cop_cart_details"] ?? ''; ?>
 			</div>
 		</div>
 	</div>
@@ -1212,7 +1217,7 @@ var disc_type_auto	=	$('input[name="discounttype"]').filter(':checked').val();
                             }else {//console.log("HELLO111");
                                     $("#check_out_cart").hide();
                                 }
-                            var min_amt = '<?php echo $_SESSION['min_amt']; ?>';
+                            var min_amt = '<?php echo $_SESSION['min_amt'] ?? ''; ?>';
 							if (typeof (min_amt) != "undefined" && min_amt !== null) {//console.log("HELLO");
                                  if (parseFloat(parseFloat(total_price_4checkoutBtn.replace(',', '')).toFixed(2)) >= parseFloat(parseFloat(min_amt).toFixed(2))) {//console.log("HELLO123");
                                     $("#check_out_pick").hide();

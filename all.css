@@ -1,0 +1,2 @@
+/* Compatibility shim for legacy pages/assets that request all.css from the site root. */
+@import url("online/admin/theme_assets/bower_components/jquery-ui/themes/base/all.css");

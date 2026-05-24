@@ -147,17 +147,23 @@ setlocale(LC_ALL, 'nl_NL');
                                 </div>
                                 <!-- /.box-header -->
 								<?php 
-								/*	$additional_query="";
+								$additional_query = "";
+								$m = "";
+								$y = "";
 								$selectmonth = "";
 								$selectyear = "";
 								$selectdate = "";
-								$selectdate2= "";
-								$totalamt = "";
-								$totalamt1 = "";
-								$totalamt2 = "";
-								$totalamt3 = "";
+								$selectdate2 = "";
+								$totalamt = 0;
+								$totalamt1 = 0;
+								$totalamt2 = 0;
+								$totalamt3 = 0;
+								$count = 0;
+								$count11 = 0;
+								$count12 = 0;
+								$count13 = 0;
 								$tipamttotal = 0;
-								$tipamttotal2 = 0;*/
+								$tipamttotal2 = 0;
 								
 									if(isset($_POST['submit'])){
 										
@@ -356,4 +362,3 @@ setlocale(LC_ALL, 'nl_NL');
   </script>
     </body>
 </html>
-

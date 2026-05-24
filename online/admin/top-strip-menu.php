@@ -1,11 +1,18 @@
-<?php 
-$result = $mysqli->query("SELECT `registered_at` FROM users WHERE name='".$_SESSION['name']."'");
-$user = $result->fetch_assoc();
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$session_name = $_SESSION['name'] ?? ($_COOKIE['name'] ?? '');
+$safe_name = $mysqli->escape_string($session_name);
+$result = $mysqli->query("SELECT `registered_at` FROM users WHERE name='".$safe_name."'");
+$user = $result ? $result->fetch_assoc() : null;
 
 $query = "Select * From `adm_set`";
         $result_query = $mysqli->query($query);
 $logo='';$rest_titl='';
-$last_login= $mysqli->query("Select `last_login` from `users` where `id`='1'")->fetch_object()->last_login;
+$last_login_result = $mysqli->query("Select `last_login` from `users` where `id`='1'");
+$last_login_row = $last_login_result ? $last_login_result->fetch_object() : null;
+$last_login = $last_login_row ? $last_login_row->last_login : '';
         while ($row = $result_query->fetch_assoc()) {
            if($row['adm_set_name']=='print_url'){$logo=$row['adm_set_vlu'];}
            if($row['adm_set_name']=='rest_title'){$rest_titl=$row['adm_set_vlu'];}

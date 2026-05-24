@@ -167,8 +167,7 @@ function topFunction() {
 <script src="theme_assets/bower_components/fastclick/lib/fastclick.js"></script>
 <!-- AdminLTE App -->
 <script src="theme_assets/dist/js/adminlte.min.js"></script>
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="theme_assets/dist/js/pages/dashboard.js"></script>
+<!-- The AdminLTE demo dashboard script expects demo chart/map containers that most custom admin pages do not render. -->
 <!-- AdminLTE for demo purposes -->
 <script src="theme_assets/dist/js/demo.js"></script>
 <script src="theme_assets/plugins/iCheck/icheck.min.js"></script>

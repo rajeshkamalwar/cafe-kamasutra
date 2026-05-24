@@ -17,7 +17,8 @@
 
 
 <?php
-$connect = mysqli_connect("localhost", "sharma_kama_res_online2", "~7D8wek55", "sharma_kama_res_online2_db");
+require 'db.php';
+$connect = $mysqli;
 $query = "SELECT * FROM tbl_orders WHERE comment_status = 0 and ot_trx_status = 'Success' order by ot_time DESC ";
 $result = mysqli_query($connect, $query);
 $output = '';

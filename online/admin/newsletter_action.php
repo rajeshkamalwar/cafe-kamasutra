@@ -22,7 +22,7 @@ if (isset($_POST['action'])) {
             include 'function.php';
             
             while ($row = $result_list_postcode_query->fetch_assoc()) {
-                
+                $activ_class = "";
 				 
                 $list_postcode .= '<tr class="' . $activ_class . '">
                                     <td>' . $row['id'] . '</td>
@@ -113,4 +113,3 @@ mail($to_id, $subject, $message, $headers);
 
 }
 ?>
-

@@ -1,5 +1,10 @@
  
-<?php 
+<?php
+require 'db.php';
+include 'config.php';
+ob_start();
+include 'conform_user.php';
+
 /*
 // 2 hours in seconds
 $inactive = 72000; 
@@ -54,19 +59,13 @@ $_SESSION['product_cart'] = time(); // Update session
 	</script>
  
 <?php
-require 'db.php';
-include 'config.php';
-ob_start();
-include 'conform_user.php';
-	
-	
- 
 if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
            $current_lang = $_SESSION['current_lang'];
+           $currentselected = $_SESSION['currentselected'] ?? '';
             define('UTF8_ENABLED', '');
             ?>
             <script>
-                b_url1 = '<?php echo 'https://restaurantkamasutra.nl/online/'; ?>';
+                b_url1 = '<?php echo online_base_url; ?>';
                 currency = '<?php echo currency . ' '; ?>';
                 current_lang = '<?php echo $current_lang; ?>';
             </script>
@@ -182,9 +181,10 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
 		 $table10record10 = $table10->num_rows;		
 		 $table11=$mysqli->query("SELECT  `table_no` FROM `table_booked` WHERE DATE(date_time) = '$today' AND  table_no = 11");
 		 $table11record11 = $table11->num_rows;		
-		 $table12=$mysqli->query("SELECT  `table_no` FROM `table_booked` WHERE DATE(date_time) = '$today' AND  table_no = 12");
-		 $table12record12 = $table12->num_rows;	
+	$table12=$mysqli->query("SELECT  `table_no` FROM `table_booked` WHERE DATE(date_time) = '$today' AND  table_no = 12");
+		$table12record12 = $table12->num_rows;	
 					 
+				$active1 = $active2 = $active3 = $active4 = $active5 = $active6 = $active7 = $active8 = $active9 = $active10 = $active11 = $active12 = '';
 				if(!empty($table1record1)) { $active1 = 'activetable2 bookedther';}								
 						if(!empty($table2record2)) { $active2 = 'activetable2 bookedther'; }
 						if(!empty($table3record3)) { $active3 = 'activetable2 bookedther'; }
@@ -216,7 +216,7 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
 									<li class="table12 <?php echo $active12; ?>"><span>12</span><input type="hidden" class="table-number" id="" value="12"><div class="tablimg"><img src="table-icon2.png" class="table-icon2"><img src="table-icon1.png" class="table-icon1"></div></li>
 
 								</ul>
-									<input type="hidden" value="<?php echo $_SESSION['currentselected']; ?>" id="currentselected">
+		  <input type="hidden" value="<?php echo $currentselected; ?>" id="currentselected">
 								</div>	
 								
 								<!---------------------Mobile Cart & Categoris------------------------->
@@ -303,8 +303,10 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
 						  // print categoires with order
                           foreach ($arrunq as $key => $value) {         
                             $get_customername = $mysqli->query("SELECT * FROM tcategories where cat_id  = '" . $value . "'");			  
-							   if($current_lang=="dutch") { 	$catneme23 = $get_customername->fetch_array()['cat_name_nl'];}
-								else {	$catneme23 = $get_customername->fetch_array()['cat_name_en'];  }                           
+							$row_nav_cat = $get_customername ? $get_customername->fetch_assoc() : null;
+							if (!$row_nav_cat) { continue; }
+							   if($current_lang=="dutch") { 	$catneme23 = $row_nav_cat['cat_name_nl'];}
+								else {	$catneme23 = $row_nav_cat['cat_name_en'];  }                           
                               $catneme2 = str_replace(' ', '-', $catneme23);
                              echo '<li><a  href="#'.$catneme2.'">'.$catneme23.'</a></li>';
                           }                                
@@ -322,12 +324,12 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
 		  <div class="table-side-ck ipad-table number" >
 <div class="sidebar8888" id="sidepad">
 <div class="rkfix550">
-<h6><?= $yourorder_l ?> <span id="tablename"><?php echo $_SESSION['currentselected']; ?></span></h6>
+<h6><?= $yourorder_l ?> <span id="tablename"><?php echo $currentselected; ?></span></h6>
  					 
  </div>
  </div>
  </div>
-		  <input type="hidden" value="<?php echo $_SESSION['currentselected']; ?>" id="currentselected">
+		  <input type="hidden" value="<?php echo $currentselected; ?>" id="currentselected">
 		  <div class="form-group col-sm-12  productrow">
 			  <h2 class="pphh">Products</h2> 
 			  <div id="btnContainer">
@@ -344,7 +346,9 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
                 // Get man dish orders
                  $dish_order = $mysqli->query("SELECT * FROM tmenu_order");
                        while($roww_5 = $dish_order->fetch_assoc()){
-                            $ordercount[] = $roww_5['do_cat_id'];
+                            if (isset($roww_5['do_cat_id'])) {
+                                $ordercount[] = $roww_5['do_cat_id'];
+                            }
                         }
                 $disordertotal = count($ordercount);
                 // Get menu order
@@ -355,7 +359,8 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
 									
                           foreach ($arrunq as $key => $value) {
                             $get_customername = $mysqli->query("SELECT * FROM tcategories where cat_id  = '" . $value . "'");
-               				 $roww_cat = $get_customername->fetch_assoc();
+                			 $roww_cat = $get_customername->fetch_assoc();
+							if (!$roww_cat) { continue; }
                        
 						if ($current_lang == "en"){   $cat_name = $roww_cat['cat_name_en'];	$product_desc = $roww_cat['cat_desc_en']; } else {   $cat_name = $roww_cat['cat_name_nl']; 	$product_desc = $roww_cat['cat_desc_nl']; }		  
                 $cat_name2 =    str_replace(' ', '', $cat_name);
@@ -366,7 +371,7 @@ if(!isset($_SESSION['current_lang'])){$_SESSION['current_lang']="en";}
                 ///    echo '<h3  class="sub_ca_name">'.$cat_name.' <p>'.$product_desc.'</p></h3>';                 
                  $dish_order = $mysqli->query("SELECT * FROM tmenu_order where cat_sort_order  = '" . $value . "'");  
                  $roww_3 = $dish_order->fetch_assoc();
-                 $disharangs = $roww_3['do_dish_sort_order'];
+                 $disharangs = $roww_3 ? $roww_3['do_dish_sort_order'] : '';
                 $array=array_map('intval', explode(',', $disharangs));
 				 $array2=array_map('intval', explode(',', $disharangs));
                 $array = implode("','",$array);							
@@ -404,8 +409,8 @@ $print_dish = "SELECT  *  FROM `tdish`  WHERE `categry_id` like'" . $value . "' 
 <input type="hidden" name="quantity" id="quantity<?php echo $roww_4["dish_id"]; ?>" class="form-control" value="1" />
 <input type="hidden" name="hidden_name" id="name<?php echo $roww_4["dish_id"]; ?>" value="<?php echo $roww_4["dish_name_en"]; ?>" />
 <input type="hidden" name="hidden_price" id="price<?php echo $roww_4["dish_id"]; ?>" value="<?php echo $roww_4["dish_price"]; ?>" />		 <input type="hidden" name="hidden_dish_type" id="dish_type<?php echo $roww_4["dish_id"]; ?>" value="<?php echo $roww_4["dish_type"]; ?>" /> 
-<input type="hidden" name="hidden_dish_attrib" id="dish_attrib<?php echo $roww_4["dish_id"]; ?>" value="<?php echo $roww_4["dish_attrib"]; ?>" />
-<input type="hidden" name="plastc_box" id="pl_price<?php echo $roww_4["dish_id"]; ?>" value="<?php echo $roww_4["bag_charge"]; ?>" />
+<input type="hidden" name="hidden_dish_attrib" id="dish_attrib<?php echo $roww_4["dish_id"]; ?>" value="<?php echo $roww_4["dish_attrib"] ?? ''; ?>" />
+<input type="hidden" name="plastc_box" id="pl_price<?php echo $roww_4["dish_id"]; ?>" value="<?php echo $roww_4["bag_charge"] ?? '0.00'; ?>" />
 <a class="addbtn add_to_cart" name="add_to_cart" id="<?php echo $roww_4["dish_id"]; ?>" href="javascript:void(0)"><i class="fa fa-plus"></i></a>
 </div>    
 	</div>          
@@ -431,7 +436,7 @@ $print_dish = "SELECT  *  FROM `tdish`  WHERE `categry_id` like'" . $value . "' 
 <div class="col-md-5 pm-sidebar right" id="sidebar">
 	<button type="button"  id="closecart"  style="display:none;">X</button>
 					 <div class="pm-widget" id="sticky">
-						 <h6><?= $yourorder_l ?> <span id="tablename"><?php echo $_SESSION['currentselected']; ?></span><span class="mob_close_btn2">X</span></h6>
+<h6><?= $yourorder_l ?> <span id="tablename"><?php echo $currentselected; ?></span><span class="mob_close_btn2">X</span></h6>
 						 
                         <div class="widget_shopping_cart_content">
                             <!-- start product list -->  
@@ -1757,4 +1762,3 @@ function checktimelimit(){
 
     </body>
 </html>
-

@@ -24,7 +24,7 @@ if (isset($_POST['postcode_action'])) {
             
             while ($row = $result_list_postcode_query->fetch_assoc()) {
                 $activ_class = "";
-                if ($row['status'] == "Inactive") {
+                if (($row['status'] ?? '') == "Inactive") {
                     $activ_class = 'incativ';
                 } else {
                     $activ_class = "";

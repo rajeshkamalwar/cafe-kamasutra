@@ -61,11 +61,10 @@ include 'conform_user.php';
                
 				  <div class="box-body pad">
 					  
-			<?php 
+							  <?php 
 								        $query = "Select * From `tipamounts`";
 								$result_query = $mysqli->query($query);
-					           $tip1=$row['tipval1'];
-							//	$row = $result_query->fetch_assoc();
+								//	$row = $result_query->fetch_assoc();
     '<select name="tipamt"  id="tipamt"> <option value="">Choose</option>    ';
 		$status = '';			  
 	 while (

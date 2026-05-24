@@ -1,3 +1,8 @@
+<?php
+if ( ! defined( 'base_url' ) && file_exists( __DIR__ . '/config.php' ) ) {
+	include_once __DIR__ . '/config.php';
+}
+?>
  <style>
             .example-modal .modal {
                 position: relative;
@@ -39,7 +44,7 @@
             }
         </style>
 
-<script> b_url = 'https://restaurantkamasutra.nl/online/admin/';</script>
+<script> b_url = '<?= defined( 'base_url' ) ? base_url : './'; ?>';</script>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="icon" href="fav.png" type="image/x-icon"/>
